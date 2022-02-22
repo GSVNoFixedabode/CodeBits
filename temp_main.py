@@ -119,6 +119,6 @@ while True:
     elif temperature < 40:
         paint_leds('red', temperature - 30)
     else:
-        paint_leds('purple', Mod(temperature,10)
+        paint_leds('purple', temperature % 10)
 # then pause 1 second 
     utime.sleep(1)
