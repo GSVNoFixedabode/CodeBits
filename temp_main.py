@@ -11,12 +11,21 @@ import rp2
 ############################################
 ########################################## Start WS2812 definitions
 # WS2812 LED strip Configuration
-led_count = 10 # number of LEDs in lightstrip
+led_count = 10 # number of LEDs in LED Ring
 brightness = 0.8 # 0.1 = darker, 1.0 = brightest
 PIN_NUM = 13 # pin connected to lightstrip
+BLACK = '#000000'
+RED = '#ff0000'
+YELLOW = '#ff9600'
+GREEN = '#00ff00'
+CYAN = '#00ffff'
+BLUE = '#0000ff'
+PURPLE = '#b400ff'
+WHITE = '#ffffff'
 
 @rp2.asm_pio(sideset_init=rp2.PIO.OUT_LOW, out_shiftdir=rp2.PIO.SHIFT_LEFT,
              autopull=True, pull_thresh=24) # PIO configuration
+
 
 # define WS2812 parameters
 def ws2812():
@@ -66,38 +75,16 @@ sensor_pir = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_DOWN)
 #LEDS Display routines
 # Code to simplify...
 def paint_leds(colourIn, tempIn):
-	global led_count, full_width, car_width, perfect, l_red, l_orange, r_red, r_orange, car_bar
-    # ===== set car bar Colour  =========
-	print(measured) #debugging
-	if measured <= perfect: # left of centre
-		if measured <= l_red:
-			car_bar_colour = '#ff0000'
-		elif measured <= l_orange:
-			car_bar_colour = '#ffa510'
-		else:
-			car_bar_colour = '#00ff00'
-	else: #right of centre
-		if measured >= r_red: 
-			car_bar_colour = '#ff0000'
-		elif measured >= r_orange:
-			car_bar_colour = '#ffa510'
-		else:
-			car_bar_colour = '#00ff00'
-# clear the strip
+	global led_count
+
+# clear LEDs
 	for index in range(led_count):
 		set_24bit(index, '#000000')
-    # Blue end markers
-	set_24bit(1, '#0000ff')
-	set_24bit(2, '#0000ff')
-	set_24bit(led_count-1, '#0000ff')
-	set_24bit(led_count-2, '#0000ff')
-    # ===== set bar Position from the left ===========
-	#firstled = int(gap * (measured / perfect)) + 1 #car bar offset, first attempt
-    #car bar offset measured from left wall to car
-	firstled = int( (measured / full_width) * led_count) + 1 
-	for led_num in range(car_bar): #loop for length of car_bar
-		if (led_num + firstled) < led_count:
-			set_24bit(led_num + firstled,car_bar_colour)
+#	set_24bit(1, '#0000ff')
+
+	for led_num in range(tempIn): #loop for length 
+		if led_num < led_count:
+			set_24bit(led_num,colourIn)
 # done. Now update strip
 	update_pix()
 
@@ -109,16 +96,16 @@ while True:
     reading = sensor_temp.read_u16() * conversion_factor 
     temperature = 27 - (reading - 0.706)/0.001721
     if temperature < 0:
-        paint_leds('white', abs(temperature))
+        paint_leds(WHITE, abs(temperature))
     elif temperature < 10:
-        paint_leds('blue', temperature)
+        paint_leds(BLUE, temperature)
     elif temperature < 20:
-        paint_leds('green', temperature - 10)
+        paint_leds(GREEN, temperature - 10)
     elif temperature < 30:
-        paint_leds('yellow', temperature - 20)
+        paint_leds(YELLOW, temperature - 20)
     elif temperature < 40:
-        paint_leds('red', temperature - 30)
+        paint_leds(RED, temperature - 30)
     else:
-        paint_leds('purple', temperature % 10)
+        paint_leds(PURPLE, temperature % 10)
 # then pause 1 second 
     utime.sleep(1)
