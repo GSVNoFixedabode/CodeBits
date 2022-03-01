@@ -114,11 +114,11 @@ while True:
     elif temperature <= 10:
         paint_leds(BLUE, temperature)
     elif temperature <= 20:
-        paint_leds(GREEN, temperature - 10)
+        paint_leds(GREEN, temperature % 10)
     elif temperature <= 30:
-        paint_leds(YELLOW, temperature - 20)
+        paint_leds(YELLOW, temperature % 10)
     elif temperature <= 40:
-        paint_leds(RED, temperature - 30)
+        paint_leds(RED, temperature % 10)
     else:
         paint_leds(PURPLE, temperature % 10)
 # then pause 1 second 
