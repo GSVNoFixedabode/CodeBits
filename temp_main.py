@@ -12,8 +12,8 @@ import rp2
 ########################################## Start WS2812 definitions
 # WS2812 LED strip Configuration
 led_count = 10 # number of LEDs in LED Ring
-brightness = 0.8 # 0.1 = darker, 1.0 = brightest
-PIN_NUM = 13 # pin connected to lightstrip
+brightness = 0.2 # 0.1 = darker, 1.0 = brightest
+PIN_NUM = 22 # pin connected to lightstrip
 BLACK = '#000000'
 RED = '#ff0000'
 YELLOW = '#ff9600'
@@ -22,6 +22,7 @@ CYAN = '#00ffff'
 BLUE = '#0000ff'
 PURPLE = '#b400ff'
 WHITE = '#ffffff'
+COLORS = (BLACK, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, WHITE)
 
 @rp2.asm_pio(sideset_init=rp2.PIO.OUT_LOW, out_shiftdir=rp2.PIO.SHIFT_LEFT,
              autopull=True, pull_thresh=24) # PIO configuration
@@ -67,22 +68,25 @@ def hex_to_rgb(hex_val):
 # blinky LED for testing
 led = machine.Pin(15, machine.Pin.OUT)
 # PIR
-sensor_pir = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_DOWN)
+# sensor_pir = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_DOWN)
 
 #
 ########################################### End WS2812 definitions
 
 #LEDS Display routines
 # Code to simplify...
-def paint_leds(colourIn, tempIn):
+def paint_leds(colourIn, intTemp):
 	global led_count
-
+	print(colourIn)
+	if intTemp == 0:
+		intTemp = 10
+	print(intTemp)
 # clear LEDs
 	for index in range(led_count):
 		set_24bit(index, '#000000')
 #	set_24bit(1, '#0000ff')
 
-	for led_num in range(tempIn): #loop for length 
+	for led_num in range(intTemp): #loop for length 
 		if led_num < led_count:
 			set_24bit(led_num,colourIn)
 # done. Now update strip
@@ -91,21 +95,32 @@ def paint_leds(colourIn, tempIn):
 # onboard temperature #####################
 sensor_temp = machine.ADC(4)
 conversion_factor = 3.3 / (65535)
- 
+
+###############################################################
+# Create the StateMachine with the ws2812 program, outputting on pre-defined pin
+# at the 8MHz frequency
+state_mach = rp2.StateMachine(0, ws2812, freq=8_000_000, sideset_base=machine.Pin(PIN_NUM))
+# Activate the state machine
+state_mach.active(1)
+# Range of LEDs stored in an array
+pixel_array = array.array("I", [0 for _ in range(led_count)])
+
 while True:
     reading = sensor_temp.read_u16() * conversion_factor 
-    temperature = 27 - (reading - 0.706)/0.001721
-    if temperature < 0:
+    temperature = int(27 - (reading - 0.706)/0.001721)
+    print(temperature)
+    if temperature <= 0:
         paint_leds(WHITE, abs(temperature))
-    elif temperature < 10:
+    elif temperature <= 10:
         paint_leds(BLUE, temperature)
-    elif temperature < 20:
+    elif temperature <= 20:
         paint_leds(GREEN, temperature - 10)
-    elif temperature < 30:
+    elif temperature <= 30:
         paint_leds(YELLOW, temperature - 20)
-    elif temperature < 40:
+    elif temperature <= 40:
         paint_leds(RED, temperature - 30)
     else:
         paint_leds(PURPLE, temperature % 10)
 # then pause 1 second 
     utime.sleep(1)
+
