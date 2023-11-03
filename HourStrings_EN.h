@@ -26,7 +26,7 @@
 String C_E_O = "57544139*"; // it is  
 String C_zero = "49302002"; // 
 String C_one = "282930"; //
-String C_two = "424344*";// 
+String C_two = "181920*";// 
 String C_three = "1211100908*";// 
 String C_four = "01020304*";// 
 String C_five = "38252209*";// 
