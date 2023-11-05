@@ -1,6 +1,7 @@
 #ifndef EN_HOURSTRINGS_EN_H
 #define EN_HOURSTRINGS_EN_H
 
+//https://github.com/ancalex/VERBIS
 //+----+---+---+---+---+---+---+---+---+----+
 //|    | 63| 62| 61| 60| 59| 58| 57| 56|    |
 //+----+---+---+---+---+---+---+---+---+----+
